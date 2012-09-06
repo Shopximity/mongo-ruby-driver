@@ -2,6 +2,10 @@
 
 require 'socket'
 require 'fileutils'
+if RUBY_PLATFORM == 'java'
+  require 'rubygems'
+  require 'posix/spawn'
+end
 
 $debug_level = 2
 STDOUT.sync = true
@@ -34,6 +38,10 @@ module Mongo
     DEFAULT_VERIFIES = 60
     BASE_PORT = 3000
     @@port = BASE_PORT
+
+    def self.port=(a_port)
+      @@port = a_port
+    end
 
     def self.configdb(config)
       config[:configs].collect{|c|"#{c[:host]}:#{c[:port]}"}.join(' ')
@@ -99,11 +107,15 @@ module Mongo
       def start(verifies = 0)
         return @pid if running?
         begin
-          @pid = fork do
-            STDIN.reopen '/dev/null'
-            STDOUT.reopen '/dev/null', 'a'
-            STDERR.reopen STDOUT
-            exec cmd # spawn(@cmd, [:in, :out, :err] => :close) #
+          if RUBY_PLATFORM == 'java'
+            @pid = POSIX::Spawn::spawn(@cmd, [:in, :out, :err] => :close)
+          else
+            @pid = fork do
+              STDIN.reopen '/dev/null'
+              STDOUT.reopen '/dev/null', 'a'
+              STDERR.reopen STDOUT
+              exec cmd # spawn(@cmd, [:in, :out, :err] => :close) #
+            end
           end
           verify(verifies) if verifies > 0
           @pid
@@ -239,11 +251,12 @@ module Mongo
       def repl_set_startup
         response = nil
         60.times do |i|
-          break if (response = repl_set_get_status)['ok'] == 1.0
+          response = repl_set_get_status
+          members = response['members']
+          return response if response['ok'] == 1.0 && response['myState'] == 1 && members.collect{|m| m['state']}.max <= 2
           sleep 1
         end
-        raise Mongo::OperationFailure, "replSet startup failed - status: #{repsonse.inspect}" unless response && response['ok'] == 1.0
-        response
+        raise Mongo::OperationFailure, "replSet startup failed - status: #{response.inspect}"
       end
 
       def mongos_seeds
