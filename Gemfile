@@ -23,5 +23,6 @@ group :development, :test do
     gem "bouncy-castle-java"
     gem "jruby-launcher"
     gem "jruby-openssl"
+    gem "posix-spawn" # XCode 4.4 - brew install apple-gcc42 && export CC=/usr/local/bin/gcc-4.2 && bundle install
   end
 end
