@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.description       = 'A Ruby BSON implementation for MongoDB. For more information about Mongo, see http://www.mongodb.org. For more information on BSON, see http://www.bsonspec.org.'
   s.rubyforge_project = 'bson'
 
-  s.signing_key       = 'gem-private_key.pem'
-  s.cert_chain        = ['gem-public_cert.pem']
+  # s.signing_key       = 'gem-private_key.pem'
+  # s.cert_chain        = ['gem-public_cert.pem']
 
   s.files             = ['bson.gemspec', 'LICENSE', 'VERSION']
   s.files             += ['bin/b2json', 'bin/j2bson', 'lib/bson.rb']
