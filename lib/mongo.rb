@@ -4,7 +4,7 @@ module Mongo
   GEO2D       = '2d'
   GEOHAYSTACK = 'geoHaystack'
 
-  DEFAULT_MAX_BSON_SIZE = 4 * 1024 * 1024
+  DEFAULT_MAX_BSON_SIZE = 16 * 1024 * 1024
   DEFAULT_MAX_MESSAGE_SIZE = DEFAULT_MAX_BSON_SIZE * 2
 
   module Constants
